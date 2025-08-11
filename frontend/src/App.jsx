@@ -479,73 +479,201 @@ export default function App() {
 
             {/* Sleep Trend Chart */}
             {sleepLogs.length > 0 && (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-lg">
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-indigo-500" />
                   30-Day Sleep Trend
                 </h3>
                 
-                <div className="relative h-64">
-                  <div className="absolute inset-0 flex items-end justify-between gap-1">
-                    {sleepLogs.slice(0, 30).reverse().map((log, index) => {
-                      const maxHours = 12;
-                      const targetHours = 7.5;
-                      const height = (log.hours / maxHours) * 100;
-                      const isGood = log.hours >= targetHours;
+                {/* Scrollable container for mobile */}
+                <div className="w-full overflow-x-auto pb-2">
+                  <div className="min-w-[320px]" style={{ width: '100%' }}>
+                    <svg 
+                      viewBox="0 0 320 200" 
+                      className="w-full h-48"
+                      preserveAspectRatio="none"
+                    >
+                      {/* Grid lines */}
+                      <defs>
+                        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-gray-200 dark:text-gray-700" />
+                        </pattern>
+                      </defs>
+                      <rect width="100%" height="100%" fill="url(#grid)" />
                       
-                      return (
-                        <div key={index} className="flex-1 flex flex-col items-center group relative">
-                          <div className="absolute bottom-full mb-2 hidden group-hover:block z-10">
-                            <div className="bg-gray-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
-                              {log.hours}h | {'⭐'.repeat(log.quality)}
-                              <br />
-                              {formatDate(log.date)}
-                            </div>
-                          </div>
-                          
-                          <div
-                            className={`w-full rounded-t transition-all duration-300 hover:opacity-80 ${
-                              isGood 
-                                ? 'bg-gradient-to-t from-green-500 to-emerald-400' 
-                                : log.hours < 5 
-                                  ? 'bg-gradient-to-t from-red-500 to-orange-400'
-                                  : 'bg-gradient-to-t from-indigo-500 to-purple-400'
-                            }`}
-                            style={{ height: `${height}%` }}
-                          />
-                          
-                          {index % 7 === 0 && (
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 rotate-45 origin-left">
-                              {formatDate(log.date)}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                  
-                  <div 
-                    className="absolute w-full border-t-2 border-dashed border-green-400 dark:border-green-600"
-                    style={{ bottom: '62.5%' }}
-                  >
-                    <span className="absolute -top-5 right-0 text-xs text-green-600 dark:text-green-400 bg-white dark:bg-gray-800 px-1">
-                      Target: 7.5h
-                    </span>
+                      {/* Target line at 7.5 hours */}
+                      <line
+                        x1="0"
+                        y1={200 - (7.5 / 12) * 200}
+                        x2="320"
+                        y2={200 - (7.5 / 12) * 200}
+                        stroke="rgb(34, 197, 94)"
+                        strokeWidth="2"
+                        strokeDasharray="5,5"
+                        opacity="0.6"
+                      />
+                      <text
+                        x="315"
+                        y={200 - (7.5 / 12) * 200 - 5}
+                        className="text-xs fill-green-600 dark:fill-green-400"
+                        textAnchor="end"
+                      >
+                        Target
+                      </text>
+                      
+                      {/* Create line path from sleep data */}
+                      {(() => {
+                        const data = sleepLogs.slice(0, Math.min(30, sleepLogs.length)).reverse();
+                        const points = data.map((log, index) => {
+                          const x = (index / (data.length - 1)) * 320;
+                          const y = 200 - (log.hours / 12) * 200;
+                          return `${x},${y}`;
+                        }).join(' ');
+                        
+                        const pathData = `M ${points}`;
+                        
+                        return (
+                          <>
+                            {/* Area fill under the line */}
+                            <path
+                              d={`${pathData} L 320,200 L 0,200 Z`}
+                              fill="url(#gradient)"
+                              opacity="0.2"
+                            />
+                            
+                            {/* Gradient definition */}
+                            <defs>
+                              <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor="rgb(99, 102, 241)" />
+                                <stop offset="100%" stopColor="rgb(99, 102, 241)" stopOpacity="0.1" />
+                              </linearGradient>
+                            </defs>
+                            
+                            {/* Main line */}
+                            <polyline
+                              points={points}
+                              fill="none"
+                              stroke="rgb(99, 102, 241)"
+                              strokeWidth="3"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            
+                            {/* Data points */}
+                            {data.map((log, index) => {
+                              const x = (index / (data.length - 1)) * 320;
+                              const y = 200 - (log.hours / 12) * 200;
+                              const isAllNighter = log.tags?.includes('All-nighter');
+                              
+                              return (
+                                <g key={index}>
+                                  <circle
+                                    cx={x}
+                                    cy={y}
+                                    r={isAllNighter ? "5" : "4"}
+                                    fill={
+                                      log.hours >= 7.5 ? "rgb(34, 197, 94)" :
+                                      log.hours >= 6 ? "rgb(99, 102, 241)" :
+                                      log.hours >= 5 ? "rgb(245, 158, 11)" :
+                                      "rgb(239, 68, 68)"
+                                    }
+                                    stroke="white"
+                                    strokeWidth="2"
+                                    className="cursor-pointer hover:r-6"
+                                  >
+                                    <title>
+                                      {log.hours}h | {formatDate(log.date)}
+                                      {isAllNighter ? ' | All-nighter!' : ''}
+                                    </title>
+                                  </circle>
+                                  {/* Mark all-nighters with exclamation */}
+                                  {isAllNighter && (
+                                    <text
+                                      x={x}
+                                      y={y - 10}
+                                      className="text-xs fill-red-500 font-bold"
+                                      textAnchor="middle"
+                                    >
+                                      !
+                                    </text>
+                                  )}
+                                </g>
+                              );
+                            })}
+                          </>
+                        );
+                      })()}
+                      
+                      {/* Y-axis labels */}
+                      <text x="5" y="10" className="text-xs fill-gray-500 dark:fill-gray-400">12h</text>
+                      <text x="5" y="60" className="text-xs fill-gray-500 dark:fill-gray-400">9h</text>
+                      <text x="5" y="110" className="text-xs fill-gray-500 dark:fill-gray-400">6h</text>
+                      <text x="5" y="160" className="text-xs fill-gray-500 dark:fill-gray-400">3h</text>
+                      <text x="5" y="195" className="text-xs fill-gray-500 dark:fill-gray-400">0h</text>
+                    </svg>
+                    
+                    {/* X-axis date labels */}
+                    <div className="flex justify-between mt-1 text-xs text-gray-500 dark:text-gray-400 px-2">
+                      {(() => {
+                        const data = sleepLogs.slice(0, Math.min(30, sleepLogs.length)).reverse();
+                        const showIndexes = [0, Math.floor(data.length / 2), data.length - 1];
+                        return showIndexes.map(idx => (
+                          <span key={idx}>
+                            {formatDate(data[idx]?.date)}
+                          </span>
+                        ));
+                      })()}
+                    </div>
                   </div>
                 </div>
                 
-                <div className="flex items-center justify-center gap-4 mt-4 text-xs">
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 bg-gradient-to-t from-green-500 to-emerald-400 rounded"></div>
-                    <span className="text-gray-600 dark:text-gray-400">Good (≥7.5h)</span>
+                {/* Legend */}
+                <div className="grid grid-cols-2 gap-2 mt-4 text-xs">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                      <span className="text-gray-600 dark:text-gray-400">Good (≥7.5h)</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 bg-gradient-to-t from-indigo-500 to-purple-400 rounded"></div>
-                    <span className="text-gray-600 dark:text-gray-400">Moderate</span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded-full bg-indigo-500"></div>
+                      <span className="text-gray-600 dark:text-gray-400">OK (6-7.5h)</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 bg-gradient-to-t from-red-500 to-orange-400 rounded"></div>
-                    <span className="text-gray-600 dark:text-gray-400">Poor</span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                      <span className="text-gray-600 dark:text-gray-400">Poor (5-6h)</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      <span className="text-gray-600 dark:text-gray-400">Bad (&lt;5h)</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Stats summary */}
+                <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="text-center">
+                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      {sleepLogs.filter(log => log.hours >= 7.5).length}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Good nights</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      {sleepLogs.filter(log => log.tags?.includes('All-nighter')).length}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">All-nighters</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      {((sleepLogs.reduce((acc, log) => acc + log.hours, 0) / sleepLogs.length) || 0).toFixed(1)}h
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Avg sleep</div>
                   </div>
                 </div>
               </div>
