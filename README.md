@@ -63,10 +63,3 @@ npm run dev
 ```bash
 docker-compose up
 ```
-
-### API Endpoints
-
-- POST /api/sleep-logs - Create sleep log
-- GET /api/sleep-logs/:userId - Get user's logs
-- GET /api/analysis/:userId - Get sleep analysis
-- POST /api/ai-insights/:userId - Get AI insights

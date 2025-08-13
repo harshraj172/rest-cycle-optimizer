@@ -6,7 +6,6 @@ import './App.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// Utility functions
 const analyzePatterns = (logs) => {
   if (!logs || logs.length === 0) {
     return {
@@ -43,7 +42,6 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 };
 
-// Components
 const SleepDebtIndicator = ({ debt }) => {
   const getStatus = () => {
     if (debt < 5) return { level: 'good', color: 'green', message: 'Great job! Well-rested' };
@@ -294,7 +292,7 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [sleepLogs, setSleepLogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const userId = 'demo-user'; // In production, get from auth
+  const userId = 'demo-user'; 
   
   const fetchLogs = async () => {
     try {
