@@ -21,7 +21,6 @@ const sleepLogSchema = new mongoose.Schema({
 
 const SleepLog = mongoose.model('SleepLog', sleepLogSchema);
 
-// Generate realistic demo data
 function generateDemoData() {
   const logs = [];
   const userId = 'demo-user';
@@ -39,8 +38,7 @@ function generateDemoData() {
     // Phase 1: Days 44-30 - Typical irregular student sleep
     if (i >= 30) {
       if (dayOfWeek === 0 || dayOfWeek === 6) {
-        // Weekend - trying to catch up but not extreme
-        hours = 8.0 + Math.random() * 1.5; // 8.5-10 hours
+        hours = 8.0 + Math.random() * 1.5; 
         quality = 3;
         morningEnergy = 2;
         afternoonEnergy = 3;
@@ -59,20 +57,20 @@ function generateDemoData() {
         // Weekdays - typical student pattern
         if (dayOfWeek === 1) {
           // Monday - rough start
-          hours = 6.0 + Math.random() * 1; // 5.5-6.5 hours
+          hours = 6.0 + Math.random() * 1;
           quality = 2;
           notes = 'Monday blues';
         } else if (dayOfWeek === 2 || dayOfWeek === 4) {
           // Tuesday/Thursday - moderate
-          hours = 6 + Math.random() * 1.5; // 6-7.5 hours
+          hours = 6 + Math.random() * 1.5;
           quality = 3;
         } else if (dayOfWeek === 3) {
           // Wednesday - midweek crash
-          hours = 5 + Math.random() * 1.5; // 5-6.5 hours
+          hours = 5 + Math.random() * 1.5;
           quality = 2;
         } else {
           // Friday - stayed up late
-          hours = 4.5 + Math.random() * 1.5; // 4.5-6 hours
+          hours = 4.5 + Math.random() * 1.5;
           quality = 2;
           if (Math.random() > 0.5) {
             tags.push('Social');
@@ -81,15 +79,15 @@ function generateDemoData() {
         }
         
         morningEnergy = 2;
-        afternoonEnergy = 1; // Afternoon crash
-        eveningEnergy = 4; // Night owl
+        afternoonEnergy = 1; 
+        eveningEnergy = 4; 
         
         if (Math.random() > 0.7) {
           tags.push('Caffeine late');
         }
       }
       
-      // Occasional bad nights (but not too many)
+      // Occasional bad nights
       if (i === 42) {
         hours = 3.5;
         quality = 1;
@@ -123,13 +121,11 @@ function generateDemoData() {
       // Exam week - stressed but not completely destroyed
       if (i >= 22 && i <= 28) {
         if (dayOfWeek === 0 || dayOfWeek === 6) {
-          // Weekend during exams - studying but getting some sleep
-          hours = 7.0 + Math.random() * 1.5; // 6.5-8 hours
+          hours = 7.0 + Math.random() * 1.5; 
           quality = 3;
           tags = ['Exam week', 'Weekend'];
         } else {
-          // Weekday exams
-          hours = 5 + Math.random() * 2; // 5-7 hours
+          hours = 5 + Math.random() * 2; 
           quality = 2;
           tags = ['Exam week'];
           
@@ -138,7 +134,6 @@ function generateDemoData() {
           }
         }
         
-        // One more all-nighter during exam week
         if (i === 25) {
           hours = 2.5;
           quality = 1;
@@ -159,7 +154,7 @@ function generateDemoData() {
       } else {
         // Post-exam recovery
         if (dayOfWeek === 0 || dayOfWeek === 6) {
-          hours = 8 + Math.random() * 1.5; // 8-9.5 hours
+          hours = 8 + Math.random() * 1.5; 
           quality = 3;
           tags = ['Weekend'];
           
@@ -167,7 +162,7 @@ function generateDemoData() {
             notes = 'Finally recovering from exams';
           }
         } else {
-          hours = 7.0 + Math.random() * 1.5; // 6.5-8 hours
+          hours = 7.0 + Math.random() * 1.5; 
           quality = 3;
         }
         
@@ -185,14 +180,11 @@ function generateDemoData() {
     
     // Phase 3: Days 14-0 - Using the app, realistic improvement
     else {
-      // Gradual, realistic improvement
       if (dayOfWeek === 0 || dayOfWeek === 6) {
-        // Weekends - more consistent
         if (i > 7) {
           hours = 8 + Math.random() * 1; // 8-9 hours
         } else {
-          // Last week - really good consistency
-          hours = 6.5 + Math.random() * 0.5; // 7.5-8 hours
+          hours = 6.5 + Math.random() * 0.5; 
         }
         quality = 4;
         
@@ -200,19 +192,15 @@ function generateDemoData() {
           tags.push('Weekend');
         }
       } else {
-        // Weekdays - getting better
         if (i > 7) {
-          // Week 2 of improvement
-          hours = 7.5 + Math.random() * 1; // 6.5-7.5 hours
+          hours = 7.5 + Math.random() * 1;
           quality = 3;
         } else {
-          // Last week - consistent
-          hours = 7 + Math.random() * 0.5; // 7-7.5 hours
+          hours = 7 + Math.random() * 0.5;
           quality = 4;
           
-          // Still some variation
           if (dayOfWeek === 1) {
-            hours = hours - 0.5; // Mondays still harder
+            hours = hours - 0.5; 
           }
           if (dayOfWeek === 5) {
             hours = hours - 0.5; // Friday nights
@@ -229,7 +217,6 @@ function generateDemoData() {
         afternoonEnergy = 2;
         eveningEnergy = 4;
       } else {
-        // Last week - better energy
         morningEnergy = 3 + Math.round(Math.random());
         afternoonEnergy = 3;
         eveningEnergy = 4;
@@ -242,7 +229,6 @@ function generateDemoData() {
         morningEnergy = Math.min(4, morningEnergy + 1);
       }
       
-      // Milestone moments
       if (i === 10) {
         notes = 'Starting to feel the difference';
       }
@@ -275,14 +261,12 @@ function generateDemoData() {
       }
     }
     
-    // Maintain night owl pattern throughout
     if (morningEnergy > eveningEnergy) {
       const temp = morningEnergy;
       morningEnergy = Math.max(1, eveningEnergy - 1);
       eveningEnergy = temp;
     }
     
-    // Round and bound values
     hours = Math.round(hours * 2) / 2;
     hours = Math.max(2, Math.min(11, hours));
     
@@ -312,14 +296,11 @@ async function seedDemoData() {
     console.log('🌙 Rest Cycle Optimizer - Realistic Demo Data');
     console.log('=============================================\n');
     
-    // Clear existing data
     await SleepLog.deleteMany({ userId: 'demo-user' });
     
-    // Generate and insert new data
     const logs = generateDemoData();
     await SleepLog.insertMany(logs);
     
-    // Calculate realistic statistics
     const recentWeek = logs.slice(-7);
     const firstWeek = logs.slice(0, 7);
     const examWeek = logs.slice(19, 26);
